@@ -1,0 +1,75 @@
+Usage example:
+
+    public class Person {
+	public String name;
+	public Integer age;
+    }
+
+    private Database db;
+	
+    public void onModuleLoad() {
+	createDocument();
+    }
+
+    void createDocument() {
+	db = new Database("test");
+	
+	Person p = new Person();
+	p.name = "John";
+	p.age = 31;
+	db.save(p, new DoneCallback<Person>() {
+	    public void onFailure(Throwable exception) {}
+	    public void onSuccess(Person document) {
+		editDocument(document);
+	    }
+	});
+    }
+    
+    private void editDocument(Person p) {
+	p.age = 32;
+	db.save(p, new DoneCallback<Person>() {
+	    public void onFailure(Throwable exception) {}
+	    public void onSuccess(Person document) {
+		getDocument(document._id);
+	    }
+	});
+    }
+	
+    private void getDocument(String id) {
+	Person p = new Person();
+	p._id = id;
+	db.get(p, new DoneCallback<Person>() {
+	    public void onFailure(Throwable exception) {}
+	    public void onSuccess(Person p) {
+		getAll();
+	    }
+	});		
+    }
+
+    private void getAll() {
+	db.getAll(new Person(), new DoneCallback<List<Person>>() {
+	    public void onFailure(Throwable exception) {}
+	    public void onSuccess(List<Person> all) {
+		for (Person p : all) {
+		    delete(p);
+		}
+	    }
+	});
+    }
+	
+    private void delete(Person p) {
+	db.delete(p, new DoneCallback<Person>() {
+	    public void onFailure(Throwable exception) {}
+	    public void onSuccess(Person document) {}
+	});
+    }
+
+
+How to try it:
+Compile the example
+$ cd example
+$ mvn package
+
+Create a document in CouchDB, and upload all files in target/gwt-couch-example-1.0-SNAPSHOT/gwt_couch_example/ as attachments.
+Create the database named "test" that the example uses (database creation not supported yet).
+If you attached the build output to a document named 'example' in a database named 'gwt-couch', you can now run the app by pointing your browser at something like http://localhost:5984/gwt-couch/example/example.html
